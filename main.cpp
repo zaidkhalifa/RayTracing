@@ -1,3 +1,6 @@
+#include "color.h"
+#include "vec3.h"
+
 #include <iostream>
 
 int main() {
@@ -21,5 +24,6 @@ int main() {
             std::cout << ir << ' ' << ig << ' ' << ib << '\n';
         }
     }
+    std::clog << "\rDone.                 \n";
     return 0;
 }
