@@ -1,7 +1,6 @@
 #ifndef HITBOX_H
 #define HITBOX_H
 
-#include "ray.h"
 
 class hit_record {
   public:
