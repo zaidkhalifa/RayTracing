@@ -1,7 +1,8 @@
-#ifndef RTWEEKEND_H
-#define RTWEEKEND_H
+#ifndef RTUTIL_H
+#define RTUTIL_H
 
 #include <cmath>
+#include <random>
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -22,6 +23,12 @@ const double pi = 3.1415926535897932385;
 
 inline double degrees_to_radians(double degrees) {
     return degrees * pi / 180.0;
+}
+
+inline double random_double(double min = 0.0, double max = 1.0) {
+    static std::uniform_real_distribution<double> distribution(min, max);
+    static std::mt19937 generator;
+    return distribution(generator);
 }
 
 // Common Headers
