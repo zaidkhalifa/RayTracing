@@ -7,9 +7,10 @@
 
 class camera {
   public:
-    double aspect_ratio = 1.0;  // Ratio of image width over height
-    int    image_width  = 100;  // Rendered image width in pixel count
+    double aspect_ratio = 1.0;       // Ratio of image width over height
+    int    image_width = 100;        // Rendered image width in pixel count
     int    samples_per_pixel = 10;   // Count of random samples for each pixel
+    int    max_depth = 10;           // Maximum number of ray bounces into scene
 
     void render(const hitbox& world) {
         initialize();
@@ -22,7 +23,7 @@ class camera {
                 color pixel_color(0,0,0);
                 for (int sample = 0; sample < samples_per_pixel; sample++) {
                     ray r = get_ray(i, j);
-                    pixel_color += ray_color(r, world);
+                    pixel_color += ray_color(r, max_depth, world);
                 }
                 write_color(std::cout, pixel_samples_scale * pixel_color);
             }
@@ -69,7 +70,7 @@ class camera {
         // Construct a camera ray originating from the origin and directed at randomly sampled
         // point around the pixel location i, j.
 
-        auto offset = sample_disk(1.0);
+        auto offset = sample_disk();
         auto pixel_sample = pixel00_loc
                           + ((i + offset.x()) * pixel_delta_u)
                           + ((j + offset.y()) * pixel_delta_v);
@@ -85,19 +86,23 @@ class camera {
         return vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
-    vec3 sample_disk(double R = sqrt_inv_pi) const
+    vec3 sample_disk(double R = 1) const
     {
         static double Rsq = R*R;
-        double r = random_double(0.0, Rsq)/R;
-        double d = random_double(0.0, 2*pi);
-        return vec3(r*std::cos(d), r*std::sin(d), 0);
+        double r = sqrt(random_double(0.0, Rsq));
+        double d = random_double(0.0, twopi);
+        return vec3(r*cos(d), r*sin(d), 0);
     }
 
-    color ray_color(const ray& r, const hitbox& world) const {
+    color ray_color(const ray& r, int depth, const hitbox& world) const {
+        if (depth <= 0)
+            return color(0,0,0);
+
         hit_record rec;
 
-        if (world.hit(r, interval(0, infinity), rec)) {
-            return 0.5 * (rec.normal + color(1,1,1));
+        if (world.hit(r, interval(0.001, infinity), rec)) {
+            vec3 direction = random_on_hemisphere(rec.normal);
+            return 0.5 * ray_color(ray(rec.p, direction), depth-1, world);
         }
 
         vec3 unit_direction = unit_vector(r.direction());
