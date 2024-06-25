@@ -18,7 +18,8 @@ using std::sqrt;
 
 const double infinity = std::numeric_limits<double>::infinity();
 const double pi = 3.1415926535897932385;
-const double ip = 1.0/pi;
+const double inv_pi = 1.0/pi;
+const double sqrt_inv_pi = sqrt(inv_pi);
 
 // Utility Functions
 

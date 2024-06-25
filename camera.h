@@ -69,7 +69,7 @@ class camera {
         // Construct a camera ray originating from the origin and directed at randomly sampled
         // point around the pixel location i, j.
 
-        auto offset = sample_disk();
+        auto offset = sample_disk(1.0);
         auto pixel_sample = pixel00_loc
                           + ((i + offset.x()) * pixel_delta_u)
                           + ((j + offset.y()) * pixel_delta_v);
@@ -85,9 +85,10 @@ class camera {
         return vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
-    vec3 sample_disk(double sq_R = 1) const
+    vec3 sample_disk(double R = sqrt_inv_pi) const
     {
-        double r = sqrt(random_double(0.0, sq_R));
+        static double Rsq = R*R;
+        double r = random_double(0.0, Rsq)/R;
         double d = random_double(0.0, 2*pi);
         return vec3(r*std::cos(d), r*std::sin(d), 0);
     }
