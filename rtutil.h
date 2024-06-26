@@ -17,6 +17,7 @@ using std::sqrt;
 using std::cbrt;
 using std::sin;
 using std::cos;
+using std::tan;
 using std::acos;
 
 // Constants
