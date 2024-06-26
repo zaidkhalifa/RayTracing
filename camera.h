@@ -4,6 +4,7 @@
 #include "rtutil.h"
 
 #include "hitbox.h"
+#include "material.h"   
 
 class camera {
   public:
@@ -33,12 +34,12 @@ class camera {
     }
 
   private:
-    int    image_height;   // Rendered image height
+    int    image_height;         // Rendered image height
     double pixel_samples_scale;  // Color scale factor for a sum of pixel samples
-    point3 center;         // Camera center
-    point3 pixel00_loc;    // Location of pixel 0, 0
-    vec3   pixel_delta_u;  // Offset to pixel to the right
-    vec3   pixel_delta_v;  // Offset to pixel below
+    point3 center;               // Camera center
+    point3 pixel00_loc;          // Location of pixel 0, 0
+    vec3   pixel_delta_u;        // Offset to pixel to the right
+    vec3   pixel_delta_v;        // Offset to pixel below
 
     void initialize() {
         image_height = int(image_width / aspect_ratio);
@@ -70,7 +71,7 @@ class camera {
         // Construct a camera ray originating from the origin and directed at randomly sampled
         // point around the pixel location i, j.
 
-        auto offset = sample_disk();
+        auto offset = sample_unit_disk();
         auto pixel_sample = pixel00_loc
                           + ((i + offset.x()) * pixel_delta_u)
                           + ((j + offset.y()) * pixel_delta_v);
@@ -84,6 +85,13 @@ class camera {
     vec3 sample_square() const {
         // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
         return vec3(random_double() - 0.5, random_double() - 0.5, 0);
+    }
+
+    vec3 sample_unit_disk() const
+    {
+        double r = sqrt(random_double());
+        double d = random_double(0.0, twopi);
+        return vec3(r*cos(d), r*sin(d), 0);
     }
 
     vec3 sample_disk(double R = 1) const
@@ -101,8 +109,11 @@ class camera {
         hit_record rec;
 
         if (world.hit(r, interval(0.001, infinity), rec)) {
-            vec3 direction = rec.normal + random_unit_vector();
-            return 0.5 * ray_color(ray(rec.p, direction), depth-1, world);
+            ray scattered;
+            color attenuation;
+            if (rec.mat->scatter(r, rec, attenuation, scattered))
+                return attenuation * ray_color(scattered, depth-1, world);
+            return color(0,0,0);
         }
 
         vec3 unit_direction = unit_vector(r.direction());

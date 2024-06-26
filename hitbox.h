@@ -1,11 +1,13 @@
 #ifndef HITBOX_H
 #define HITBOX_H
 
+class material;
 
 class hit_record {
   public:
     point3 p;
     vec3 normal;
+    shared_ptr<material> mat;
     double t;
     bool front_face;
 

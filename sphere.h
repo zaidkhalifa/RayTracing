@@ -5,9 +5,7 @@
 
 class sphere : public hitbox {
   public:
-    // virtual ~hitbox() = default;
-    // virtual bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_record& rec) const = 0;
-    sphere(const point3& center, double radius) : center(center), radius(fmax(0,radius)) {}
+    sphere(const point3& center, double radius, shared_ptr<material> mat): center(center), radius(fmax(0,radius)), mat(mat) {}
 
     bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
         vec3 oc = center - r.origin();
@@ -31,9 +29,9 @@ class sphere : public hitbox {
 
         rec.t = root;
         rec.p = r.at(rec.t);
-        // rec.normal = (rec.p - center) / radius;
         vec3 outward_normal = (rec.p - center) / radius;
         rec.set_face_normal(r, outward_normal); 
+        rec.mat = mat;
 
         return true;
     }
@@ -41,6 +39,7 @@ class sphere : public hitbox {
   private:
     point3 center;
     double radius;
+    shared_ptr<material> mat;
 };
 
 #endif
